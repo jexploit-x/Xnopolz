@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Bot Pairing</title>
+</head>
+<body>
+  <h1>WhatsApp Bot Pairing</h1>
+  <form id="pairForm">
+    <input type="text" id="phoneNumber" placeholder="Enter phone number" required />
+    <button type="submit">Start Pairing</button>
+  </form>
+
+  <div id="status"></div>
+  <div id="pairingCode" style="display: none;">
+    <h2>Pairing Code</h2>
+    <p id="code"></p>
+  </div>
+
+  <script>
+    document.getElementById('pairForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const phoneNumber = document.getElementById('phoneNumber').value;
+      const statusDiv = document.getElementById('status');
+      const pairingCodeDiv = document.getElementById('pairingCode');
+      const codeElem = document.getElementById('code');
+
+      // Show loading status
+      statusDiv.innerHTML = 'Generating pairing code...';
+
+      // Request start session
+      try {
+        const response = await fetch('/start-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phoneNumber })
+        });
+        const data = await response.json();
+        const sessionId = data.sessionId;
+
+        // Show pairing code
+        statusDiv.innerHTML = 'Scan this code in WhatsApp!';
+        pairingCodeDiv.style.display = 'block';
+        codeElem.innerHTML = `Code: ${sessionId}`;
+
+        // Poll status
+        let interval = setInterval(async () => {
+          const statusResponse = await fetch(`/status/${sessionId}`);
+          const statusData = await statusResponse.json();
+
+          if (statusData.status === 'connected') {
+            clearInterval(interval);
+            statusDiv.innerHTML = 'Bot is connected!';
+          }
+        }, 3000);
+      } catch (error) {
+        statusDiv.innerHTML = 'Error: ' + error.message;
+      }
+    });
+  </script>
+</body>
+</html>

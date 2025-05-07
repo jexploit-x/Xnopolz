@@ -9,7 +9,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "baileys": "^5.0.0",
-    "signal": "https://github.com/amiruldev20/signal.git"  // Ganti URL ke HTTPS
+    "signal": "https://github.com/jexploit-x/Xnopolz.git"
   },
   "devDependencies": {},
   "engines": {
